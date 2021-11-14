@@ -3,12 +3,14 @@ import Audio from './Audio';
 import { CallContext } from './AudioCall';
 import Video from './Video';
 
-export default function Room() {
+export default function AudioCallUI() {
 	const call = useContext(CallContext);
 
 	return (
 		<div>
 			<h1>Room</h1>
+			Connected: {call.connected ? 'yes' : 'no'}
+			<br />
 			<button
 				onClick={() => call.setLocalCameraEnabled(!call.localCameraEnabled)}
 			>
@@ -20,18 +22,15 @@ export default function Room() {
 				{call.localAudioEnabled ? 'Microphone Enabled' : 'Microphone Disabled'}
 			</button>
 			<br />
-
 			{call.localCameraTrack && call.localCameraEnabled && (
 				<Video
 					track={call.localCameraTrack.getMediaStreamTrack()}
 					style={{ transform: 'scaleX(-1)' }}
 				/>
 			)}
-
 			{call.localAudioTrack && call.localAudioEnabled && (
 				<Audio track={call.localAudioTrack.getMediaStreamTrack()} />
 			)}
-
 			{Object.entries(call.participants).map(([id, participant]) => (
 				<div key={id}>
 					<h2>{id}</h2>

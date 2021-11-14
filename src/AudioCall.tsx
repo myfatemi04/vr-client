@@ -44,7 +44,7 @@ export type Participant = {
 	audio?: MediaStreamTrack;
 };
 
-const appID = '';
+const appID = process.env.REACT_APP_AGORA_APP_ID;
 
 export function useParticipants() {
 	return useContext(CallContext).participants;
@@ -154,6 +154,10 @@ export default function AudioCall({
 	);
 
 	useEffect(() => {
+		if (!appID) {
+			throw new Error('REACT_APP_AGORA_APP_ID is not set');
+		}
+
 		client.join(appID, roomID, token).then(uid => {
 			setConnected(true);
 			setLocalParticipantUid(uid);

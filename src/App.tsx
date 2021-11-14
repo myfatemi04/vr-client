@@ -1,13 +1,14 @@
 import './App.css';
-import AudioCall from './AudioCall';
-import Room from './Room';
+import SpaceHost from './SpaceHost';
 
 function App() {
-	return (
-		<AudioCall roomID='test' token='Token'>
-			<Room />
-		</AudioCall>
-	);
+	return <SpaceHost />;
+
+	// return (
+	// 	<AudioCall roomID='test' token='Token'>
+	// 		<AudioCallUI />
+	// 	</AudioCall>
+	// );
 }
 
 export default App;
