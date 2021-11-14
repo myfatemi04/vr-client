@@ -1,13 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import SpaceRenderer, { SpaceProps } from './SpaceRenderer';
 
 export default function SpaceHost() {
-	const wsRef = useRef<WebSocket>();
+	const [ws] = useState(() => new WebSocket('ws://localhost:8080/ws'));
 	const [space, setSpace] = useState<SpaceProps>();
 
 	useEffect(() => {
-		wsRef.current = new WebSocket('ws://localhost:8080');
-		const ws = wsRef.current;
 		ws.onopen = () => {
 			ws.send(
 				JSON.stringify({
@@ -19,10 +17,10 @@ export default function SpaceHost() {
 		ws.onmessage = message => {
 			setSpace(JSON.parse(message.data));
 		};
-	}, []);
+	}, [ws]);
 
 	if (space) {
-		return <SpaceRenderer space={space} />;
+		return <SpaceRenderer space={space} ws={ws} />;
 	} else {
 		return null;
 	}
