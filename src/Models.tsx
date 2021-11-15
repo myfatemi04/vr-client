@@ -22,6 +22,6 @@ export function City() {
 		'https://nebulamodels.s3.amazonaws.com/models/cartoon_city/model.fbx'
 	);
 	return (
-		<primitive object={model} scale={[0.5, 0.5, 0.5]} position={[0, -1.9, 0]} />
+		<primitive object={model} scale={[0.02, 0.02, 0.02]} position={[0, 2, 0]} />
 	);
 }

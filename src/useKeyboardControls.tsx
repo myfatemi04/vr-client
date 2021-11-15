@@ -1,35 +1,29 @@
 import { useEffect } from 'react';
 import { UserProps } from './SpaceRenderer';
 
-const changes = {
-	a: { x: -1, y: 0 },
-	d: { x: 1, y: 0 },
-	w: { x: 0, y: -1 },
-	s: { x: 0, y: 1 },
-};
-
 export default function useKeyboardControls({
 	ws,
 	me,
+	rotation,
 }: {
 	ws: WebSocket;
 	me: UserProps;
+	rotation: number;
 }) {
 	useEffect(() => {
 		document.onkeydown = e => {
-			if ('asdw'.includes(e.key)) {
+			if ('sdwa'.includes(e.key)) {
+				const idx = 'sdwa'.indexOf(e.key);
 				ws.send(
 					JSON.stringify({
 						cmd: 'set-position',
 						body: {
-							// @ts-expect-error
-							x: me.x + changes[e.key].x,
-							// @ts-expect-error
-							y: me.y + changes[e.key].y,
+							x: me.x + Math.sin(rotation + (idx * Math.PI) / 2),
+							y: me.y + Math.cos(rotation + (idx * Math.PI) / 2),
 						},
 					})
 				);
 			}
 		};
-	}, [me.x, me.y, ws]);
+	}, [me.x, me.y, rotation, ws]);
 }

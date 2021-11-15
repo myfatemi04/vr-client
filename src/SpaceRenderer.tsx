@@ -1,9 +1,11 @@
 import { PointerLockControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
-import { Suspense, useEffect, useState } from 'react';
-import { PerspectiveCamera } from 'three';
+import { Suspense, useEffect, useRef, useState } from 'react';
+import { BackSide, PerspectiveCamera } from 'three';
+import Avatar from './Avatar';
 import { City } from './Models';
 import useKeyboardControls from './useKeyboardControls';
+import useSmooth from './useSmooth';
 
 export type UserProps = {
 	name: string;
@@ -18,29 +20,6 @@ export type SpaceProps = {
 	};
 };
 
-const useSmooth = (value: number) => {
-	const [smooth, setSmooth] = useState(value);
-	useEffect(() => {
-		const interval = setInterval(() => {
-			setSmooth(smooth => smooth * 0.8 + value * 0.2);
-		}, 1000 / 60);
-		return () => clearInterval(interval);
-	}, [value]);
-	return smooth;
-};
-
-const User = ({ props }: { props: UserProps }) => {
-	const x = useSmooth(props.x);
-	const y = useSmooth(props.y);
-
-	return (
-		<mesh position={[x, 0, y]}>
-			<boxBufferGeometry attach='geometry' args={[1, 1, 1]} />
-			<meshStandardMaterial attach='material' color='red' />
-		</mesh>
-	);
-};
-
 /**
  * Renders the content of a space.
  */
@@ -51,25 +30,43 @@ export default function SpaceRenderer({
 	ws: WebSocket;
 	space: SpaceProps;
 }) {
+	const canvas = useRef<HTMLCanvasElement>(null);
+
 	const me = space.users[space.uid];
-	useKeyboardControls({ ws, me });
 	const camera = useState(() => new PerspectiveCamera())[0];
+
+	useEffect(() => {
+		camera.setFocalLength(10);
+	}, [camera]);
 
 	const x = useSmooth(me.x);
 	const y = useSmooth(me.y);
 
-	camera.position.set(x, 0, y);
+	camera.position.set(x, 1.5, y);
+	useKeyboardControls({ ws, me, rotation: camera.rotation.reorder('YZX').y });
 
 	return (
-		<div style={{ width: '600px', height: '400px', border: '2px solid white' }}>
-			<Canvas camera={camera}>
-				<ambientLight />
-				<pointLight position={[10, 10, 10]} />
-				{Object.values(space.users).map((user: UserProps) => (
-					<User key={user.name} props={user} />
-				))}
+		<div
+			style={{ width: '1000px', height: '600px', border: '2px solid white' }}
+		>
+			<Canvas camera={camera} ref={canvas}>
+				<mesh>
+					<boxBufferGeometry attach='geometry' args={[100, 100, 100]} />
+					<meshBasicMaterial
+						attach='material'
+						color='#48006f'
+						side={BackSide}
+					/>
+				</mesh>
+				<hemisphereLight color='black' />
 				<PointerLockControls camera={camera} />
 				<Suspense fallback={null}>
+					{Object.entries(space.users).map(
+						([uid, user]) =>
+							uid !== space.uid && (
+								<Avatar key={uid} position={[user.x, 0, user.y]} />
+							)
+					)}
 					{/* <SushiTable /> */}
 					<City />
 				</Suspense>
