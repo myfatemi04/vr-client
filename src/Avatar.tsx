@@ -7,8 +7,10 @@ const readyPlayerMeUrl =
 
 export default function Avatar({
 	position,
+	rotation,
 }: {
 	position: [number, number, number];
+	rotation: [number, number, number];
 }) {
 	const model = useLoader(GLTFLoader, readyPlayerMeUrl);
 
@@ -16,5 +18,13 @@ export default function Avatar({
 	const y = useSmooth(position[1]);
 	const z = useSmooth(position[2]);
 
-	return <primitive object={model.scene} position={[x, y, z]} />;
+	const yRotation = useSmooth(rotation[1] + Math.PI);
+
+	return (
+		<primitive
+			object={model.scene}
+			position={[x, y, z]}
+			rotation={[rotation[0], yRotation, rotation[2]]}
+		/>
+	);
 }

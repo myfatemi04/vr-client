@@ -11,6 +11,9 @@ export type UserProps = {
 	name: string;
 	x: number;
 	y: number;
+	rotation: {
+		y: number;
+	};
 };
 
 export type SpaceProps = {
@@ -39,6 +42,17 @@ export default function SpaceRenderer({
 		camera.setFocalLength(10);
 	}, [camera]);
 
+	useEffect(() => {
+		const interval = setInterval(() => {
+			const yRotation = camera.rotation.reorder('YZX').y;
+			ws.send(JSON.stringify({ cmd: 'set-rotation', body: { y: yRotation } }));
+		}, 100);
+
+		return () => {
+			clearInterval(interval);
+		};
+	}, [camera, ws]);
+
 	const x = useSmooth(me.x);
 	const y = useSmooth(me.y);
 
@@ -64,7 +78,11 @@ export default function SpaceRenderer({
 					{Object.entries(space.users).map(
 						([uid, user]) =>
 							uid !== space.uid && (
-								<Avatar key={uid} position={[user.x, 0, user.y]} />
+								<Avatar
+									key={uid}
+									position={[user.x, 0, user.y]}
+									rotation={[0, user.rotation.y, 0]}
+								/>
 							)
 					)}
 					{/* <SushiTable /> */}
